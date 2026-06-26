@@ -3,6 +3,7 @@ using ToyStore.Domain.Interfaces;
 using ToyStore.Infrastructure.Context;
 using ToyStore.Infrastructure.Repositories;
 using ToyStore.Application.Services;
+using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,13 @@ builder.Services.AddControllers();
 
 // Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlFilePath = Path.Combine(AppContext.BaseDirectory, xmlFileName);
+
+    options.IncludeXmlComments(xmlFilePath);
+});
 
 var app = builder.Build();
 
