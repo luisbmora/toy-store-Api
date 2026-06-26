@@ -1,0 +1,203 @@
+# Toy Store API
+
+API backend para un sistema de inventario de una tienda de juguetes.
+
+El proyecto permite administrar productos mediante operaciones CRUD y también soporta la carga de imágenes para cada producto.
+
+## Tecnologías utilizadas
+
+* .NET 10
+* ASP.NET Core Web API
+* Entity Framework Core
+* Entity Framework Core InMemory
+* Swagger / OpenAPI
+* xUnit
+* Moq
+* FluentAssertions
+
+## Arquitectura del proyecto
+
+El proyecto utiliza una arquitectura por capas:
+
+```text
+toy-store-api
+│
+├── src
+│   ├── ToyStoreApi              # Capa API / Controllers / Configuración de Swagger
+│   ├── ToyStore.Application     # DTOs y servicios de aplicación
+│   ├── ToyStore.Domain          # Entidades e interfaces de repositorios
+│   └── ToyStore.Infrastructure  # DbContext e implementación de repositorios
+│
+└── test
+    └── ToyStore.Tests           # Pruebas unitarias
+```
+
+El flujo principal de la aplicación es:
+
+```text
+Controller
+    ↓
+Service
+    ↓
+Repository Interface
+    ↓
+Repository Implementation
+    ↓
+ApplicationDbContext
+```
+
+## Modelo de producto
+
+La entidad `Product` contiene los siguientes campos:
+
+| Campo          | Tipo    | Requerido | Validación                  |
+| -------------- | ------- | --------: | --------------------------- |
+| Id             | int     |        Sí | Identificador único         |
+| Name           | string  |        Sí | Máximo 50 caracteres        |
+| Description    | string  |        No | Máximo 100 caracteres       |
+| AgeRestriction | int     |        No | Rango de 0 a 100            |
+| Company        | string  |        Sí | Máximo 50 caracteres        |
+| Price          | decimal |        Sí | Rango de 1 a 1000           |
+| ImageUrl       | string  |        No | Ruta de imagen del producto |
+
+## Almacenamiento de datos
+
+Este proyecto utiliza Entity Framework Core con una base de datos en memoria.
+
+La base de datos se crea automáticamente al iniciar la API e incluye datos iniciales de prueba.
+
+Esta configuración evita depender de una instalación local de SQL Server y permite ejecutar el proyecto fácilmente en cualquier equipo.
+
+## Endpoints disponibles
+
+| Método | Endpoint                   | Descripción                       |
+| ------ | -------------------------- | --------------------------------- |
+| GET    | `/api/products`            | Obtiene todos los productos       |
+| GET    | `/api/products/{id}`       | Obtiene un producto por ID        |
+| POST   | `/api/products`            | Crea un nuevo producto            |
+| PUT    | `/api/products/{id}`       | Actualiza un producto existente   |
+| DELETE | `/api/products/{id}`       | Elimina un producto existente     |
+| POST   | `/api/products/{id}/image` | Carga una imagen para un producto |
+
+## Requisitos
+
+Antes de ejecutar el proyecto, asegúrate de tener instalado:
+
+* Visual Studio 2022 o superior
+* .NET SDK 10 o una versión compatible
+* Git
+
+## Cómo clonar el repositorio
+
+```bash
+git clone https://github.com/luisbmora/toy-store-Api.git
+```
+
+Después entra a la carpeta del proyecto:
+
+```bash
+cd toy-store-api
+```
+
+## Cómo restaurar dependencias
+
+```bash
+dotnet restore
+```
+
+## Cómo compilar la solución
+
+```bash
+dotnet build
+```
+
+## Cómo ejecutar la API
+
+```bash
+dotnet run --project src/ToyStoreApi
+```
+
+Al ejecutar el proyecto, la consola mostrará la URL local de la API.
+
+Ejemplo:
+
+```text
+https://localhost:7000
+```
+
+## Documentación con Swagger
+
+Abre Swagger en el navegador:
+
+```text
+https://localhost:7000/swagger
+```
+
+Swagger permite probar todos los endpoints disponibles directamente desde el navegador.
+
+## Ejemplo de JSON para crear un producto
+
+```json
+{
+  "name": "Oso de Peluche",
+  "description": "Peluche suave para niños.",
+  "ageRestriction": 2,
+  "company": "ToyLand",
+  "price": 249.99,
+  "imageUrl": null
+}
+```
+
+## Carga de imágenes
+
+La API permite cargar imágenes mediante el siguiente endpoint:
+
+```text
+POST /api/products/{id}/image
+```
+
+Formatos permitidos:
+
+* JPG
+* JPEG
+* PNG
+* WEBP
+
+Las imágenes se almacenan en:
+
+```text
+src/ToyStoreApi/wwwroot/images/products
+```
+
+Después de cargar una imagen, el producto se actualiza con un valor en `ImageUrl` similar a:
+
+```text
+/images/products/generated-file-name.png
+```
+
+## Cómo ejecutar las pruebas unitarias
+
+```bash
+dotnet test
+```
+
+El backend incluye pruebas unitarias para el servicio de productos usando xUnit, Moq y FluentAssertions.
+
+Escenarios probados:
+
+* Obtener todos los productos
+* Obtener producto por ID existente
+* Obtener producto por ID inexistente
+* Crear producto
+* Actualizar producto
+* Eliminar producto
+
+## Notas importantes
+
+Como el proyecto utiliza una base de datos en memoria, los datos se reinician cada vez que la API se detiene y se vuelve a ejecutar.
+
+Las imágenes cargadas permanecen físicamente en la carpeta `wwwroot/images/products`, pero la relación con el producto mediante `ImageUrl` se reinicia al reiniciar la API, debido a que la base de datos está en memoria.
+
+## Autor
+
+Luis Salvador Barajas Mora
