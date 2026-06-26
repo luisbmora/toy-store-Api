@@ -18,6 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<FileStorageService>();
 
 
 builder.Services.AddControllers();
@@ -43,7 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();

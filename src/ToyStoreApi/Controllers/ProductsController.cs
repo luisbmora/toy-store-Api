@@ -9,10 +9,17 @@ namespace ToyStoreApi.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly ProductService _productService;
+    private readonly IWebHostEnvironment _environment;
+    private readonly FileStorageService _fileStorageService;
 
-    public ProductsController(ProductService productService)
+    public ProductsController(
+        ProductService productService,
+        IWebHostEnvironment environment,
+        FileStorageService fileStorageService)
     {
         _productService = productService;
+        _environment = environment;
+        _fileStorageService = fileStorageService;
     }
 
     /// <summary>
@@ -92,6 +99,57 @@ public class ProductsController : ControllerBase
         }
 
         return NoContent();
+    }
+
+
+    /// <summary>
+    /// Carga una imagen para un producto existente.
+    /// </summary>
+    /// <param name="id">Identificador del producto.</param>
+    /// <param name="image">Archivo de imagen del producto.</param>
+    /// <returns>Producto actualizado con la ruta de imagen.</returns>
+    [HttpPost("{id:int}/image")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProductDto>> UploadImage(
+        int id,
+        IFormFile image)
+    {
+        if (image is null || image.Length == 0)
+        {
+            return BadRequest(new
+            {
+                message = "La imagen del producto es obligatoria."
+            });
+        }
+
+        try
+        {
+            var imageUrl = await _fileStorageService.SaveProductImageAsync(
+                image,
+                _environment.WebRootPath);
+
+            var updatedProduct = await _productService.UpdateImageAsync(id, imageUrl);
+
+            if (updatedProduct is null)
+            {
+                return NotFound(new
+                {
+                    message = "Producto no encontrado."
+                });
+            }
+
+            return Ok(updatedProduct);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new
+            {
+                message = exception.Message
+            });
+        }
     }
 
     /// <summary>

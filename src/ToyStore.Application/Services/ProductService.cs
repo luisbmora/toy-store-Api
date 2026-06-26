@@ -87,6 +87,23 @@ public class ProductService
         return true;
     }
 
+    public async Task<ProductDto?> UpdateImageAsync(int id, string imageUrl)
+    {
+        var product = await _productRepository.GetByIdAsync(id);
+
+        if (product is null)
+        {
+            return null;
+        }
+
+        product.ImageUrl = imageUrl;
+
+        _productRepository.Update(product);
+        await _productRepository.SaveChangesAsync();
+
+        return MapToDto(product);
+    }
+
     private static ProductDto MapToDto(Product product)
     {
         return new ProductDto
