@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using ToyStore.Domain.Interfaces;
 using ToyStore.Infrastructure.Context;
 using ToyStore.Infrastructure.Repositories;
+using ToyStore.Application.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Dependency injection
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+builder.Services.AddScoped<ProductService>();
+
+
+builder.Services.AddControllers();
 
 // Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
